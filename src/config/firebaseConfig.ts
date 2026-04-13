@@ -1,7 +1,7 @@
 import { initializeApp, cert, ServiceAccount } from "firebase-admin/app";
 import { getAuth, Auth } from "firebase-admin/auth";
 import { getFirestore, Firestore } from "firebase-admin/firestore";
-const serviceAccount = require("../Assignment_4.json"); // new import
+const serviceAccount = require("../../Assignment_4.json"); // new import
 
 initializeApp({
     credential: cert(serviceAccount as ServiceAccount),
