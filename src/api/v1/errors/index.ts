@@ -1,4 +1,4 @@
-import { ERROR_CODES } from '../../constants';
+import { ERROR_CODES } from '../../../constants';
 
 export abstract class AppError extends Error {
   public readonly code: string;

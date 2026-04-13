@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { auth } from '../../../config/firebaseConfig';
 import { AuthenticationError } from '../errors';
-import { AuthenticatedUser, UserRole } from '../types';
+import { AuthenticatedUser } from '../types';
 import { ERROR_CODES } from '../../../constants';
 
 declare global {

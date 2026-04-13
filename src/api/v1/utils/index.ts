@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { AppError, AuthenticationError, AuthorizationError, ValidationError, NotFoundError, InternalServerError } from '../errors';
+import { AppError, AuthenticationError, ValidationError, InternalServerError } from '../errors';
 import { ErrorResponse, SuccessResponse } from '../types';
 
 export const createErrorResponse = (error: AppError): ErrorResponse => ({

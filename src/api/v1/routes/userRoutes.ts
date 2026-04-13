@@ -3,7 +3,7 @@ import { auth } from '../../../config/firebaseConfig';
 import { authenticate } from '../middleware/authenticate';
 import { authorize } from '../middleware/authorize';
 import { sendSuccessResponse, sendErrorResponse, handleError } from '../utils';
-import { AuthenticationError, AuthorizationError, ValidationError } from '../errors';
+import { AuthenticationError, ValidationError } from '../errors';
 import Joi from 'joi';
 
 const router = Router();

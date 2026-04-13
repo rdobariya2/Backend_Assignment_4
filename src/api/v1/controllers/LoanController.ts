@@ -33,7 +33,7 @@ export class LoanController {
   async getLoanById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;
-      const loan = await this.loanRepository.findById(id);
+      const loan = await this.loanRepository.findById(id as string);
 
       if (!loan) {
         throw new NotFoundError('Loan application not found');
@@ -71,7 +71,7 @@ export class LoanController {
       }
 
       const updateData: UpdateLoanApplicationRequest = value;
-      const loan = await this.loanRepository.update(id, updateData);
+      const loan = await this.loanRepository.update(id as string, updateData);
       sendSuccessResponse(res, loan);
     } catch (error) {
       const appError = handleError(error);
@@ -82,7 +82,7 @@ export class LoanController {
   async deleteLoan(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;
-      await this.loanRepository.delete(id);
+      await this.loanRepository.delete(id as string);
       sendSuccessResponse(res, { message: 'Loan application deleted successfully' }, 204);
     } catch (error) {
       const appError = handleError(error);

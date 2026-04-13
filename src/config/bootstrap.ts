@@ -1,11 +1,8 @@
-import { auth } from '../config/firebaseConfig';
+import { auth } from './firebaseConfig';
 
 export const bootstrapAdmin = async (): Promise<void> => {
   try {
     // Create admin user with custom claims
-    const adminEmail = 'admin@pixell-river.com';
-    const adminPassword = 'Admin123!'; // In production, this should be handled securely
-
     // Note: In a real application, you would create the user through Firebase Auth
     // and then set custom claims. For bootstrap purposes, we'll assume the user exists.
 
