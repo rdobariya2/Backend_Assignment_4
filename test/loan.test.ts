@@ -2,8 +2,24 @@ import request from 'supertest';
 
 // Mock Firebase config to avoid loading the JSON file
 jest.mock('../src/config/firebaseConfig', () => ({
-  auth: {},
-  db: {},
+  auth: {
+    verifyIdToken: jest.fn(),
+    setCustomUserClaims: jest.fn(),
+    getUser: jest.fn(),
+  },
+  db: {
+    collection: jest.fn(() => ({
+      add: jest.fn(),
+      orderBy: jest.fn(() => ({
+        get: jest.fn(),
+      })),
+      doc: jest.fn(() => ({
+        get: jest.fn(),
+        update: jest.fn(),
+        delete: jest.fn(),
+      })),
+    })),
+  },
 }));
 
 import app from '../src/app';
