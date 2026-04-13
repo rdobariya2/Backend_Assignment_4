@@ -46,7 +46,7 @@ describe('Authentication middleware', () => {
       headers: { authorization: 'Bearer valid-token' },
     } as unknown as Request;
 
-    jest.spyOn(auth, 'verifyIdToken').mockResolvedValue({ uid: 'uid-123', email: 'test@pixell-river.com', role: 'manager' });
+    jest.spyOn(auth, 'verifyIdToken').mockResolvedValue({ uid: 'uid-123', email: 'test@pixell-river.com', role: 'manager' } as any);
 
     await authenticate(req, res, next);
 
