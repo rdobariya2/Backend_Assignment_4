@@ -1,4 +1,11 @@
 import request from 'supertest';
+
+// Mock Firebase config to avoid loading the JSON file
+jest.mock('../src/config/firebaseConfig', () => ({
+  auth: {},
+  db: {},
+}));
+
 import app from '../src/app';
 
 describe('Loan API', () => {
