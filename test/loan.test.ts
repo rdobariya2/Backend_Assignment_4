@@ -8,6 +8,7 @@ jest.mock('../src/config/firebaseConfig', () => ({
     verifyIdToken: jest.fn(),
     setCustomUserClaims: jest.fn(),
     getUser: jest.fn(),
+    getUserByEmail: jest.fn(),
   },
   db: {
     collection: jest.fn(() => ({
@@ -63,6 +64,23 @@ describe('Loan API', () => {
       expect(response.body.success).toBe(false);
       expect(response.body.error.code).toBe(ERROR_CODES.TOKEN_INVALID);
       expect(response.body.error.message).toContain('Invalid');
+    });
+
+    it('should allow admin to assign role using /admin/claims', async () => {
+      (auth.verifyIdToken as jest.Mock).mockResolvedValue({ uid: 'admin-uid', email: 'admin@pixell-river.com', role: 'admin' });
+      (auth.getUserByEmail as jest.Mock).mockResolvedValue({ uid: 'target-uid', email: 'officer@pixell-river.com' });
+      (auth.setCustomUserClaims as jest.Mock).mockResolvedValue(undefined);
+
+      const response = await request(app)
+        .post('/api/v1/admin/claims')
+        .set('Authorization', 'Bearer valid-admin-token')
+        .send({ email: 'officer@pixell-river.com', role: 'officer' })
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toHaveProperty('message');
+      expect((auth.setCustomUserClaims as jest.Mock).mock.calls[0][0]).toBe('target-uid');
+      expect((auth.setCustomUserClaims as jest.Mock).mock.calls[0][1]).toEqual({ role: 'officer' });
     });
   });
 });
