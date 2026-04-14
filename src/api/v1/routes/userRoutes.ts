@@ -23,12 +23,15 @@ const getUidFromRequest = async (uid?: string, email?: string): Promise<string> 
     throw new ValidationError('Either uid or email must be provided');
   }
 
-  const userRecord = await auth.getUserByEmail(email);
-  if (!userRecord) {
-    throw new NotFoundError('User not found');
+  try {
+    const userRecord = await auth.getUserByEmail(email);
+    return userRecord.uid;
+  } catch (error: any) {
+    if (error.code === 'auth/user-not-found') {
+      throw new NotFoundError('User not found');
+    }
+    throw error;
   }
-
-  return userRecord.uid;
 };
 
 // Get current user details - requires authentication
