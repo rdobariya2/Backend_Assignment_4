@@ -3,7 +3,8 @@ import { auth } from '../../../config/firebaseConfig';
 import { authenticate } from '../middleware/authenticate';
 import { authorize } from '../middleware/authorize';
 import { sendSuccessResponse, sendErrorResponse, handleError } from '../utils';
-import { AuthenticationError, ValidationError, NotFoundError } from '../errors';
+import { AuthenticationError, AuthorizationError, ValidationError, NotFoundError } from '../errors';
+import { ERROR_CODES } from '../../../constants';
 import Joi from 'joi';
 
 const router = Router();
@@ -69,6 +70,33 @@ router.post('/user/claims', authenticate, authorize({ roles: ['admin'] }), async
     await auth.setCustomUserClaims(targetUid, { role });
 
     sendSuccessResponse(res, { message: `Custom claims set for user ${targetUid} with role ${role}` });
+  } catch (error) {
+    const appError = handleError(error);
+    sendErrorResponse(res, appError);
+  }
+});
+
+// Bootstrap route for creating the first admin from a secret key
+router.post('/bootstrap/admin', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const bootstrapSecret = process.env.BOOTSTRAP_SECRET;
+    const requestSecret = req.headers['x-bootstrap-secret'] || req.body.secret;
+
+    if (!bootstrapSecret || requestSecret !== bootstrapSecret) {
+      throw new AuthorizationError('Invalid bootstrap secret', ERROR_CODES.INSUFFICIENT_ROLE);
+    }
+
+    const { error, value } = setCustomClaimsSchema.validate(req.body);
+    if (error) {
+      throw new ValidationError(error.details[0].message);
+    }
+
+    const { uid, email, role } = value;
+    const targetUid = await getUidFromRequest(uid, email);
+
+    await auth.setCustomUserClaims(targetUid, { role });
+
+    sendSuccessResponse(res, { message: `Bootstrapped user ${targetUid} with role ${role}` });
   } catch (error) {
     const appError = handleError(error);
     sendErrorResponse(res, appError);
