@@ -117,7 +117,7 @@ router.post('/admin/bootstrap', async (req: Request, res: Response, next: NextFu
     const uid = await createOrResolveAdminUser(email, password);
     await auth.setCustomUserClaims(uid, { role: 'admin' });
 
-    return res.status(200).json({
+    res.status(200).json({
       status: 'success',
       data: { uid },
       message: 'Admin user bootstrapped successfully. User must obtain a new token for changes to take effect.',
