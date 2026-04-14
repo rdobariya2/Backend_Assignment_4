@@ -83,7 +83,7 @@ export class LoanController {
     try {
       const { id } = req.params;
       await this.loanRepository.delete(id as string);
-      sendSuccessResponse(res, { message: 'Loan application deleted successfully' }, 204);
+      sendSuccessResponse(res, { message: 'Loan application deleted successfully' });
     } catch (error) {
       const appError = handleError(error);
       sendErrorResponse(res, appError);
