@@ -12,18 +12,18 @@ router.get('/health', (req, res) => {
 });
 
 // Get all loans - requires authentication, officer/manager/admin can access
-router.get('/loans', authenticate, authorize({ roles: ['officer', 'manager', 'admin'] }), loanController.getAllLoans);
+router.get('/loans', authenticate, authorize({ roles: ['officer', 'manager', 'admin'] }), (req, res, next) => loanController.getAllLoans(req, res, next));
 
 // Get loan by ID - requires authentication, officer/manager/admin can access
-router.get('/loans/:id', authenticate, authorize({ roles: ['officer', 'manager', 'admin'] }), loanController.getLoanById);
+router.get('/loans/:id', authenticate, authorize({ roles: ['officer', 'manager', 'admin'] }), (req, res, next) => loanController.getLoanById(req, res, next));
 
 // Create loan - requires authentication, manager/admin can access
-router.post('/loans', authenticate, authorize({ roles: ['manager', 'admin'] }), loanController.createLoan);
+router.post('/loans', authenticate, authorize({ roles: ['manager', 'admin'] }), (req, res, next) => loanController.createLoan(req, res, next));
 
 // Update loan - requires authentication, manager/admin can access
-router.put('/loans/:id', authenticate, authorize({ roles: ['manager', 'admin'] }), loanController.updateLoan);
+router.put('/loans/:id', authenticate, authorize({ roles: ['manager', 'admin'] }), (req, res, next) => loanController.updateLoan(req, res, next));
 
 // Delete loan - requires authentication, only admin can access
-router.delete('/loans/:id', authenticate, authorize({ roles: ['admin'] }), loanController.deleteLoan);
+router.delete('/loans/:id', authenticate, authorize({ roles: ['admin'] }), (req, res, next) => loanController.deleteLoan(req, res, next));
 
 export default router;
