@@ -1,4 +1,14 @@
 import { Request, Response } from 'express';
+
+jest.mock('../src/config/firebaseConfig', () => ({
+  auth: {
+    verifyIdToken: jest.fn(),
+    setCustomUserClaims: jest.fn(),
+    getUser: jest.fn(),
+    getUserByEmail: jest.fn(),
+  },
+}));
+
 import { authenticate } from '../src/api/v1/middleware/authenticate';
 import { authorize } from '../src/api/v1/middleware/authorize';
 import { AuthenticationError, AuthorizationError } from '../src/api/v1/errors';
