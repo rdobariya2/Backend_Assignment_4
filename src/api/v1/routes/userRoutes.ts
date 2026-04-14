@@ -35,6 +35,22 @@ const getUidFromRequest = async (uid?: string, email?: string): Promise<string> 
   }
 };
 
+const createOrResolveAdminUser = async (email: string, password?: string): Promise<string> => {
+  try {
+    const existing = await auth.getUserByEmail(email);
+    return existing.uid;
+  } catch (error: any) {
+    if (error.code === 'auth/user-not-found') {
+      if (!password) {
+        throw new ValidationError('Password is required when creating a new admin user');
+      }
+      const created = await auth.createUser({ email, password });
+      return created.uid;
+    }
+    throw error;
+  }
+};
+
 // Get current user details - requires authentication
 router.get('/user', authenticate, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -76,27 +92,36 @@ router.post('/user/claims', authenticate, authorize({ roles: ['admin'] }), async
   }
 });
 
+const adminBootstrapSchema = Joi.object({
+  email: Joi.string().email().required(),
+  password: Joi.string().min(6).required(),
+  secret: Joi.string().optional(),
+});
+
 // Bootstrap route for creating the first admin from a secret key
-router.post('/bootstrap/admin', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+router.post('/admin/bootstrap', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const bootstrapSecret = process.env.BOOTSTRAP_SECRET;
     const requestSecret = req.headers['x-bootstrap-secret'] || req.body.secret;
 
-    if (!bootstrapSecret || requestSecret !== bootstrapSecret) {
+    if (bootstrapSecret && requestSecret !== bootstrapSecret) {
       throw new AuthorizationError('Invalid bootstrap secret', ERROR_CODES.INSUFFICIENT_ROLE);
     }
 
-    const { error, value } = setCustomClaimsSchema.validate(req.body);
+    const { error, value } = adminBootstrapSchema.validate(req.body);
     if (error) {
       throw new ValidationError(error.details[0].message);
     }
 
-    const { uid, email, role } = value;
-    const targetUid = await getUidFromRequest(uid, email);
+    const { email, password } = value;
+    const uid = await createOrResolveAdminUser(email, password);
+    await auth.setCustomUserClaims(uid, { role: 'admin' });
 
-    await auth.setCustomUserClaims(targetUid, { role });
-
-    sendSuccessResponse(res, { message: `Bootstrapped user ${targetUid} with role ${role}` });
+    return res.status(200).json({
+      status: 'success',
+      data: { uid },
+      message: 'Admin user bootstrapped successfully. User must obtain a new token for changes to take effect.',
+    });
   } catch (error) {
     const appError = handleError(error);
     sendErrorResponse(res, appError);
